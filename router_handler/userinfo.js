@@ -75,3 +75,16 @@ exports.updatePassword = (req, res) => {
     })
   })
 }
+
+// 更新用户密码
+exports.updateAvatar = (req, res) => {
+  const sql = 'update ev_users set user_pic = ? where id = ?'
+  db.query(sql, [req.body.avatar, req.user.id], (err, results) => {
+    if (err) return res.cc(err)
+    // 执行 SQL 语句成功，但是影响行数不等于 1
+    if (results.affectedRows !== 1) return res.cc('更新头像失败！')
+
+    // 更新用户头像成功
+    return res.cc('更新头像成功！', 0)
+  })
+}
