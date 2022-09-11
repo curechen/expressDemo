@@ -58,6 +58,7 @@ exports.login = (req, res) => {
     if (results.length !== 1) return res.cc('登录失败！')
     // TODO：判断用户输入的登录密码是否和数据库中的密码一致
     // 拿着用户输入的密码,和数据库中存储的密码进行对比，结果返回一个布尔值
+    // 需要注意的是这里拿到的用户输入密码是未加密的，而数据库中的密码是加密过的
     const compareResult = bcrypt.compareSync(userinfo.password, results[0].password)
 
     // 如果对比的结果等于 false, 则证明用户输入的密码错误
