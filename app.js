@@ -7,13 +7,7 @@ app.use(cors())
 
 app.use(express.urlencoded({ extended: false }))
 
-const config = require('./config')
-// 解析 token 的中间件
-const expressJWT = require('express-jwt')
-// 使用 .unless({ path: [/^\/api\//] }) 指定哪些接口不需要进行 Token 的身份认证 这里是指登录和注册的接口不需要 token 认证
-app.use(expressJWT({ secret: config.jwtSecretKey }).unless({ path: [/^\/api\//] }))
-
-// 响应数据的中间件
+// 响应数据的中间件，要放到路由和 jwt 的前面，因为 jwt 报错直接就到最后接受错误的地方了
 app.use(function (req, res, next) {
   // status = 0 为成功； status = 1 为失败； 默认将 status 的值设置为 1，这个函数是为了方便处理失败的情况
   res.cc = function (err, status = 1) {
@@ -27,10 +21,24 @@ app.use(function (req, res, next) {
   next()
 })
 
+const config = require('./config')
+// 解析 token 的中间件
+const expressJWT = require('express-jwt')
+// 使用 .unless({ path: [/^\/api\//] }) 指定哪些接口不需要进行 Token 的身份认证 这里是指登录和注册的接口不需要 token 认证
+app.use(expressJWT({ secret: config.jwtSecretKey }).unless({ path: [/^\/api\//] }))
+
+
+
 
 // 路由从这里开始
 const userRouter = require('./router/user')
 app.use('/api', userRouter)
+// 导入并使用用户信息路由模块
+const userinfoRouter = require('./router/userinfo')
+// 注意：以 /my 开头的接口，都是有权限的接口，需要进行 Token 身份认证
+app.use('/my', userinfoRouter)
+
+
 
 const joi = require('joi')
 // 错误中间件
