@@ -18,20 +18,21 @@ exports.regUser = (req, res) => {
     return res.send({ status: 1, message: '用户名或密码不能为空！' })
   }
   const sql = 'select * from ev_users where username = ?'
-  db.query(sql, [userinfo.username], function (err, res) {
+  db.query(sql, [userinfo.username], function (err, results) {
     if (err) {
-      return res.send({ status: 1, message: err.message })
+      return res.cc(err.message)
     }
     // 用户名被占用
-    if (res.length > 0) {
-      return res.send({ status: 1, message: '用户名被占用啦！' })
+    if (results.length > 0) {
+      // return res.send({ status: 1, message: '用户名被占用啦！' })
+      return res.cc('用户名被占用啦！')
     }
     // 对用户的密码,进行 bcrype 加密，返回值是加密之后的密码字符串
     userinfo.password = bcrypt.hashSync(userinfo.password, 10)
     // 定义插入新用户的 SQL 语句
     const sql = 'insert into ev_users (username, password) values (?, ?)'
     // 调用 db.query() 执行 SQL 语句
-    db.query(sql, { username: userinfo.username, password: userinfo.password }, (err, results) => {
+    db.query(sql, [userinfo.username, userinfo.password], (err, results) => {
       // 判断 SQL 语句是否执行成功
       if (err) return res.cc(err)
       // 判断影响行数是否为 1

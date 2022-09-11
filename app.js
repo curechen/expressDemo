@@ -24,6 +24,15 @@ app.use(express.urlencoded({ extended: false }))
 const userRouter = require('./router/user')
 app.use('/api', userRouter)
 
+const joi = require('joi')
+// 错误中间件
+app.use(function (err, req, res, next) {
+  // 数据验证失败
+  if (err instanceof joi.ValidationError) return res.cc(err)
+  // 未知错误
+  res.cc(err)
+})
+
 app.listen(3007, function() {
   console.log('api server running at http://127.0.0.1:3007')
 })
